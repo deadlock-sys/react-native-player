@@ -1,0 +1,101 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import TrackPlayer from 'react-native-track-player';
+
+const MusicPlayerList = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const [tracks, setTracks] = useState([]);
+
+  useEffect(() => {
+    TrackPlayer.setupPlayer().then(() => {
+      TrackPlayer.updateOptions({
+        stopWithApp: true,
+        capabilities: [TrackPlayer.CAPABILITY_PLAY, TrackPlayer.CAPABILITY_PAUSE, TrackPlayer.CAPABILITY_SKIP_TO_NEXT, TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS],
+        compactCapabilities: [TrackPlayer.CAPABILITY_PLAY, TrackPlayer.CAPABILITY_PAUSE],
+      });
+    });
+    setTracks([
+      { id: '1', url: 'https://example.com/song1.mp3', title: 'Song 1', artist: 'Artist 1', artwork: 'https://example.com/artwork1.png' },
+      { id: '2', url: 'https://example.com/song2.mp3', title: 'Song 2', artist: 'Artist 2', artwork: 'https://example.com/artwork2.png' },
+      { id: '3', url: 'https://example.com/song3.mp3', title: 'Song 3', artist: 'Artist 3', artwork: 'https://example.com/artwork3.png' },
+    ]);
+  }, []);
+
+  const playTrack = async (track) => {
+    if (currentTrack !== null && currentTrack.id === track.id) {
+      if (isPlaying) {
+        await TrackPlayer.pause();
+        setIsPlaying(false);
+      } else {
+        await TrackPlayer.play();
+        setIsPlaying(true);
+      }
+    } else {
+      if (currentTrack !== null) {
+        await TrackPlayer.stop();
+      }
+      await TrackPlayer.reset();
+      await TrackPlayer.add({
+        id: track.id,
+        url: track.url,
+        title: track.title,
+        artist: track.artist,
+        artwork: track.artwork,
+      });
+      await TrackPlayer.play();
+      setIsPlaying(true);
+      setCurrentTrack(track);
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity style={styles.itemContainer} onPress={() => playTrack(item)}>
+      <Image style={styles.artwork} source={{ uri: item.artwork }} />
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.artist}>{item.artist}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={tracks}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  artwork: {
+    width: 64,
+    height: 64,
+    marginRight: 16,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  artist: {
+    fontSize: 14,
+  },
+});
+
+export default MusicPlayerList;
