@@ -1,0 +1,99 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import TrackPlayer from 'react-native-track-player';
+
+const MusicPlayerAlbumGrid = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const [albums, setAlbums] = useState([]);
+
+  useEffect(() => {
+    TrackPlayer.setupPlayer().then(() => {
+      TrackPlayer.updateOptions({
+        stopWithApp: true,
+        capabilities: [TrackPlayer.CAPABILITY_PLAY, TrackPlayer.CAPABILITY_PAUSE, TrackPlayer.CAPABILITY_SKIP_TO_NEXT, TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS],
+        compactCapabilities: [TrackPlayer.CAPABILITY_PLAY, TrackPlayer.CAPABILITY_PAUSE],
+      });
+    });
+    setAlbums([
+      { id: '1', title: 'Album 1', artist: 'Artist 1', artwork: 'https://example.com/artwork1.png', tracks: [
+        { id: '1', url: 'https://example.com/song1.mp3', title: 'Song 1', artist: 'Artist 1', artwork: 'https://example.com/artwork1.png' },
+        { id: '2', url: 'https://example.com/song2.mp3', title: 'Song 2', artist: 'Artist 1', artwork: 'https://example.com/artwork2.png' },
+        { id: '3', url: 'https://example.com/song3.mp3', title: 'Song 3', artist: 'Artist 1', artwork: 'https://example.com/artwork3.png' },
+      ] },
+      { id: '2', title: 'Album 2', artist: 'Artist 2', artwork: 'https://example.com/artwork2.png', tracks: [
+        { id: '4', url: 'https://example.com/song4.mp3', title: 'Song 4', artist: 'Artist 2', artwork: 'https://example.com/artwork4.png' },
+        { id: '5', url: 'https://example.com/song5.mp3', title: 'Song 5', artist: 'Artist 2', artwork: 'https://example.com/artwork5.png' },
+        { id: '6', url: 'https://example.com/song6.mp3', title: 'Song 6', artist: 'Artist 2', artwork: 'https://example.com/artwork6.png' },
+      ] },
+      { id: '3', title: 'Album 3', artist: 'Artist 3', artwork: 'https://example.com/artwork3.png', tracks: [
+        { id: '7', url: 'https://example.com/song7.mp3', title: 'Song 7', artist: 'Artist 3', artwork: 'https://example.com/artwork7.png' },
+        { id: '8', url: 'https://example.com/song8.mp3', title: 'Song 8', artist: 'Artist 3', artwork: 'https://example.com/artwork8.png' },
+        { id: '9', url: 'https://example.com/song9.mp3', title: 'Song 9', artist: 'Artist 3', artwork: 'https://example.com/artwork9.png' },
+      ] },
+    ]);
+  }, []);
+
+  const playTrack = async (track) => {
+    if (currentTrack !== null && currentTrack.id
+    await TrackPlayer.reset();
+    await TrackPlayer.add(track);
+    await TrackPlayer.play();
+    setCurrentTrack(track);
+    setIsPlaying(true);
+  };
+
+  const pauseTrack = async () => {
+    await TrackPlayer.pause();
+    setIsPlaying(false);
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity onPress={() => playTrack(item.tracks[0])}>
+      <View style={styles.albumContainer}>
+        <Image style={styles.albumArt} source={{ uri: item.artwork }} />
+        <Text style={styles.albumTitle}>{item.title}</Text>
+        <Text style={styles.albumArtist}>{item.artist}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={albums}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        renderItem={renderItem}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  albumContainer: {
+    width: '50%',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  albumArt: {
+    width: 150,
+    height: 150,
+    marginBottom: 10,
+  },
+  albumTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  albumArtist: {
+    fontSize: 16,
+    color: '#999',
+  },
+});
+
+export default MusicPlayerAlbumGrid;
