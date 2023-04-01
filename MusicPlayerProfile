@@ -1,0 +1,38 @@
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+
+import ProfileHeader from './ProfileHeader';
+import AlbumList from './AlbumList';
+
+const MusicPlayerProfile = () => {
+  const [profileData, setProfileData] = useState(null);
+  const [albumData, setAlbumData] = useState([]);
+  const { username } = useParams();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`/api/profiles/${username}`);
+        setProfileData(response.data);
+        setAlbumData(response.data.albums);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [username]);
+
+  if (!profileData) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <ProfileHeader profileData={profileData} />
+      <AlbumList albumData={albumData} />
+    </div>
+  );
+};
+
+export default MusicPlayerProfile;
