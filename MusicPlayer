@@ -1,0 +1,89 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import TrackPlayer from 'react-native-track-player';
+
+const MusicPlayer = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(null);
+
+  useEffect(() => {
+    TrackPlayer.setupPlayer().then(() => {
+      TrackPlayer.updateOptions({
+        stopWithApp: true,
+        capabilities: [TrackPlayer.CAPABILITY_PLAY, TrackPlayer.CAPABILITY_PAUSE, TrackPlayer.CAPABILITY_SKIP_TO_NEXT, TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS],
+        compactCapabilities: [TrackPlayer.CAPABILITY_PLAY, TrackPlayer.CAPABILITY_PAUSE],
+      });
+    });
+  }, []);
+
+  const playTrack = async (track) => {
+    if (currentTrack !== null && currentTrack.id === track.id) {
+      if (isPlaying) {
+        await TrackPlayer.pause();
+        setIsPlaying(false);
+      } else {
+        await TrackPlayer.play();
+        setIsPlaying(true);
+      }
+    } else {
+      if (currentTrack !== null) {
+        await TrackPlayer.stop();
+      }
+      await TrackPlayer.reset();
+      await TrackPlayer.add({
+        id: track.id,
+        url: track.url,
+        title: track.title,
+        artist: track.artist,
+        artwork: track.artwork,
+      });
+      await TrackPlayer.play();
+      setIsPlaying(true);
+      setCurrentTrack(track);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Image style={styles.artwork} source={{ uri: currentTrack !== null ? currentTrack.artwork : null }} />
+      <Text style={styles.title}>{currentTrack !== null ? currentTrack.title : ''}</Text>
+      <Text style={styles.artist}>{currentTrack !== null ? currentTrack.artist : ''}</Text>
+      <TouchableOpacity style={styles.button} onPress={() => playTrack({ id: '1', url: 'https://example.com/song.mp3', title: 'Song Title', artist: 'Artist Name', artwork: 'https://example.com/artwork.png' })}>
+        <Text style={styles.buttonText}>{isPlaying ? 'Pause' : 'Play'}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  artwork: {
+    width: 200,
+    height: 200,
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  artist: {
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: '#2196F3',
+    padding: 16,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+});
+
+export default MusicPlayer;
