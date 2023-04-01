@@ -1,0 +1,45 @@
+import React, { useState } from 'react';
+
+const MusicPlayerSettings = () => {
+  const [darkMode, setDarkMode] = useState(false);
+  const [notification, setNotification] = useState(true);
+  const [language, setLanguage] = useState('en');
+
+  const handleDarkModeChange = () => {
+    setDarkMode(!darkMode);
+  };
+
+  const handleNotificationChange = () => {
+    setNotification(!notification);
+  };
+
+  const handleLanguageChange = (e) => {
+    setLanguage(e.target.value);
+  };
+
+  return (
+    <div>
+      <h2>Settings</h2>
+      <label>
+        Dark Mode
+        <input type="checkbox" checked={darkMode} onChange={handleDarkModeChange} />
+      </label>
+      <br />
+      <label>
+        Notification
+        <input type="checkbox" checked={notification} onChange={handleNotificationChange} />
+      </label>
+      <br />
+      <label>
+        Language
+        <select value={language} onChange={handleLanguageChange}>
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+        </select>
+      </label>
+    </div>
+  );
+};
+
+export default MusicPlayerSettings;
