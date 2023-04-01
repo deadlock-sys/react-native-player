@@ -1,0 +1,29 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+import SongList from './SongList';
+
+const MusicPlayerFavorites = () => {
+  const [favorites, setFavorites] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('/api/favorites');
+        setFavorites(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      <h2>Favorites</h2>
+      <SongList songs={favorites} />
+    </div>
+  );
+};
+
+export default MusicPlayerFavorites;
